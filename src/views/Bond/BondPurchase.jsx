@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Tab, Tabs } from "@material-ui/core";
+import TabPanel from "../../components/TabPanel";
 import {
   Box,
   Button,
@@ -19,6 +21,13 @@ import useDebounce from "../../hooks/Debounce";
 import { error } from "../../slices/MessagesSlice";
 import { DisplayBondDiscount } from "./Bond";
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
 function BondPurchase({ bond, slippage, recipientAddress }) {
   const SECONDS_TO_REFRESH = 60;
   const dispatch = useDispatch();
@@ -26,6 +35,7 @@ function BondPurchase({ bond, slippage, recipientAddress }) {
 
   const [quantity, setQuantity] = useState("");
   const [secondsToRefresh, setSecondsToRefresh] = useState(SECONDS_TO_REFRESH);
+  const [view, setView] = useState(0);
 
   const currentBlock = useSelector(state => {
     return state.app.currentBlock;
@@ -122,12 +132,80 @@ function BondPurchase({ bond, slippage, recipientAddress }) {
     dispatch(changeApproval({ address, bond, provider, networkID: chainID }));
   };
 
+  const changeView = (event, newView) => {
+    setView(newView);
+  };
+
   const displayUnits = bond.displayUnits;
 
   const isAllowanceDataLoading = bond.allowance == null;
 
   return (
     <Box display="flex" flexDirection="column">
+      <Box border={1} borderColor="green" backgroundColor="white">
+        <Tabs
+          flex-start
+          value={view}
+          textColor="primary"
+          indicatorColor="primary"
+          onChange={changeView}
+          aria-label="bond tabs"
+        >
+          <Tab label={<span style={{ fontSize: "12px" }}>Bond</span>} {...a11yProps(0)} />
+          <Tab label={<span style={{ fontSize: "12px" }}>Limit</span>} {...a11yProps(1)} />
+        </Tabs>
+        <TabPanel value={view} index={1} fullWidth>
+          <Box display="flex" justifyContent="flex-start" alignItems="stretch" borderRadius="10px" borderColor="green">
+            <FormControl
+              className="ohm-input"
+              flexDirection="column"
+              alignItems="stretch"
+              variant="outlined"
+              color="primary"
+              fullWidth
+              alignItems="flex-start"
+            >
+              <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+              <OutlinedInput
+                flexWrap="wrap"
+                id="outlined-adornment-amount"
+                type="number"
+                value={quantity}
+                onChange={e => setQuantity(e.target.value)}
+                labelWidth={55}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <Button variant="text" onClick={setMax}>
+                      Max
+                    </Button>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </Box>
+        </TabPanel>
+        <TabPanel value={view} index={0} fullWidth>
+          <Box display="flex" justifyContent="space-around" flexWrap="wrap">
+            <FormControl className="ohm-input" variant="outlined" color="primary" fullWidth>
+              <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-amount"
+                type="number"
+                value={quantity}
+                onChange={e => setQuantity(e.target.value)}
+                labelWidth={55}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <Button variant="text" onClick={setMax}>
+                      Max
+                    </Button>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </Box>
+        </TabPanel>
+      </Box>
       <Box display="flex" justifyContent="space-around" flexWrap="wrap">
         {isAllowanceDataLoading ? (
           <Skeleton width="200px" />
@@ -143,24 +221,7 @@ function BondPurchase({ bond, slippage, recipientAddress }) {
                 </em>
               </div>
             ) : (
-              <FormControl className="ohm-input" variant="outlined" color="primary" fullWidth>
-                <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
-                <OutlinedInput
-                  id="outlined-adornment-amount"
-                  type="number"
-                  value={quantity}
-                  onChange={e => setQuantity(e.target.value)}
-                  // startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                  labelWidth={55}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <Button variant="text" onClick={setMax}>
-                        Max
-                      </Button>
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
+              <FormControl className="ohm-input" variant="outlined" color="primary" fullWidth></FormControl>
             )}
 
             {!bond.isAvailable[chainID] ? (
