@@ -141,38 +141,23 @@ function BondPurchase({ bond, slippage, recipientAddress }) {
   const isAllowanceDataLoading = bond.allowance == null;
 
   return (
-    <Box display="flex" flexDirection="column">
-      <Box border={1} borderColor="green" backgroundColor="white">
-        <Tabs
-          flex-start
-          value={view}
-          textColor="primary"
-          indicatorColor="primary"
-          onChange={changeView}
-          aria-label="bond tabs"
-        >
+    <Box>
+      <Box border={1} borderColor="white" backgroundColor="white" color="white">
+        <Tabs value={view} textColor="primary" indicatorColor="primary" onChange={changeView} aria-label="bond tabs">
           <Tab label={<span style={{ fontSize: "12px" }}>Bond</span>} {...a11yProps(0)} />
           <Tab label={<span style={{ fontSize: "12px" }}>Limit</span>} {...a11yProps(1)} />
         </Tabs>
-        <TabPanel value={view} index={1} fullWidth>
-          <Box display="flex" justifyContent="flex-start" alignItems="stretch" borderRadius="10px" borderColor="green">
-            <FormControl
-              className="ohm-input"
-              flexDirection="column"
-              alignItems="stretch"
-              variant="outlined"
-              color="primary"
-              fullWidth
-              alignItems="flex-start"
-            >
+        <TabPanel value={view} index={1}>
+          <Box backgroundColor="white">
+            <FormControl className="ohm-input" variant="outlined">
               <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
               <OutlinedInput
+                fullWidth="true"
                 flexWrap="wrap"
                 id="outlined-adornment-amount"
                 type="number"
                 value={quantity}
                 onChange={e => setQuantity(e.target.value)}
-                labelWidth={55}
                 endAdornment={
                   <InputAdornment position="end">
                     <Button variant="text" onClick={setMax}>
